@@ -9,11 +9,16 @@ namespace ConsoleControllsLib
 {
     public class Window
     {
-        static public bool IsExist { get; private set; } = false;
+
+
+        static public Window instanse;
+
+        public static Screen? _ActiveScreen { get => instanse.ActiveScreen; set => instanse.ActiveScreen = value; }
 
         public Window()
         {
-            IsExist = true;
+            instanse = this;
+            Console.CursorVisible = false;
         }
 
         #region MakeWindowUnresizable 
@@ -47,36 +52,65 @@ namespace ConsoleControllsLib
         /// </summary>
         /// <param name="WindowHeight"> Height in char </param>
         /// <param name="WindowWidth"> Width in char </param>
-        public void SetWindowSize(int WindowHeight, int WindowWidth)
+
+        public (int width, int height) WindowSize
         {
-            Console.WindowHeight = WindowHeight;
-            Console.WindowWidth = WindowWidth;
+            get
+            {
+                return (Console.BufferWidth, Console.BufferHeight);
+            }
+
+            set
+            {
+                Console.WindowHeight = value.height;
+                Console.BufferHeight = value.height;
+                Console.WindowWidth = value.width;
+                Console.BufferWidth = value.width;
+            }
+
         }
+        public int FramePerSecond { get; set; }
+
 
         public void Run()
         {
-            if (activeScreen == null)
-                throw new Exception("Active screen was null");
             
 
+            while (true)
+            {
+                Update();
+                EventSystem.Update();
+            };
 
-            EventSystem.Update();
-            activeScreen?.Update();          
         }
 
-        public Screen activeScreen { get; set; }
+        private void Update()
+        {
 
+            if (ActiveScreen == null)
+                throw new Exception("Active screen was null");
 
-    }
+            ActiveScreen.Update();
 
-    struct WindowSettings
-    {
+        }
 
-        public bool isResizable { get; set; }
+        public Screen? ActiveScreen { get; set; } = null;
 
-        public (int, int) WindowSize { get; set; }
+        #region SomeHelpFunc
 
+        static public void MergeBuffers(char[,] main, char[,] target, (int X, int Y) position)
+        {
 
+            for (int mainX = position.X < 0 ? 0  : position.X, targetX = 0; mainX < main.GetLength(0) && targetX < target.GetLength(0); mainX++, targetX++)
+            {
+                for (int mainY = position.Y < 0 ? 0 : position.Y, targetY = 0; mainY < main.GetLength(1) && targetY < target.GetLength(1); mainY++, targetY++)
+                {
+                    main[mainX, mainY] = target[targetX, targetY];
+                }
+            }
+        }
+
+        #endregion
     }
 
 }

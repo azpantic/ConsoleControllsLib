@@ -6,9 +6,15 @@ using System.Threading.Tasks;
 
 namespace ConsoleControllsLib
 {
-    public interface IChild
+    public interface IChild : IElement
     {
 
+        public IParent parent { get; set; }
 
+        public char[,] GetVisualBuffer();
+
+        public void Update();
+
+      
     }
 }
